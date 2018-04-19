@@ -10,25 +10,30 @@
 #import <objc/runtime.h>
 
 @implementation MAS_VIEW (MASAdditions)
-
+//新建约束并添加
 - (NSArray *)mas_makeConstraints:(void(^)(MASConstraintMaker *))block {
+    //去除系统自动添加的autolayout,变为手动添加
     self.translatesAutoresizingMaskIntoConstraints = NO;
     MASConstraintMaker *constraintMaker = [[MASConstraintMaker alloc] initWithView:self];
+    //给marker属性赋值，通过block进行值回调，此处block就是勾取用户数据的钩子，（设计模式好莱坞原则）
     block(constraintMaker);
+    //添加约束，返回install的约束数组
     return [constraintMaker install];
 }
-
+//更新约束
 - (NSArray *)mas_updateConstraints:(void(^)(MASConstraintMaker *))block {
     self.translatesAutoresizingMaskIntoConstraints = NO;
     MASConstraintMaker *constraintMaker = [[MASConstraintMaker alloc] initWithView:self];
+    //更新
     constraintMaker.updateExisting = YES;
     block(constraintMaker);
     return [constraintMaker install];
 }
-
+//移除约束并添加
 - (NSArray *)mas_remakeConstraints:(void(^)(MASConstraintMaker *make))block {
     self.translatesAutoresizingMaskIntoConstraints = NO;
     MASConstraintMaker *constraintMaker = [[MASConstraintMaker alloc] initWithView:self];
+    //移除并添加
     constraintMaker.removeExisting = YES;
     block(constraintMaker);
     return [constraintMaker install];
@@ -185,13 +190,14 @@
 }
 
 #pragma mark - heirachy
-
+//计算两视图公共父视图
 - (instancetype)mas_closestCommonSuperview:(MAS_VIEW *)view {
     MAS_VIEW *closestCommonSuperview = nil;
 
     MAS_VIEW *secondViewSuperview = view;
     while (!closestCommonSuperview && secondViewSuperview) {
         MAS_VIEW *firstViewSuperview = self;
+        //遍历查找公共父视图
         while (!closestCommonSuperview && firstViewSuperview) {
             if (secondViewSuperview == firstViewSuperview) {
                 closestCommonSuperview = secondViewSuperview;

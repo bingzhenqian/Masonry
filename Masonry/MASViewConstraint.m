@@ -99,6 +99,7 @@ static char kInstalledConstraintsKey;
 
 - (void)setLayoutRelation:(NSLayoutRelation)layoutRelation {
     _layoutRelation = layoutRelation;
+    //有布局关系
     self.hasLayoutRelation = YES;
 }
 
@@ -191,6 +192,15 @@ static char kInstalledConstraintsKey;
         } else {
             NSAssert(!self.hasLayoutRelation || self.layoutRelation == relation && [attribute isKindOfClass:NSValue.class], @"Redefinition of constraint relation");
             self.layoutRelation = relation;
+            //set方法，有三种值
+            /*
+             这里的secondViewAttribute有三种类型，分别是NSValue、MAS_VIEW、MASViewAttribute，我可以举三个例子对应这里的三种情况：
+             
+             make.width.mas_equalTo(100);
+             make.left.equalTo(self.view);
+             make.left.equalTo(self.view.mas_left);
+
+             */
             self.secondViewAttribute = attribute;
             return self;
         }
@@ -328,7 +338,7 @@ static char kInstalledConstraintsKey;
         secondLayoutItem = self.firstViewAttribute.view.superview;
         secondLayoutAttribute = firstLayoutAttribute;
     }
-    
+    //MASLayoutConstraint : NSLayoutConstraint
     MASLayoutConstraint *layoutConstraint
         = [MASLayoutConstraint constraintWithItem:firstLayoutItem
                                         attribute:firstLayoutAttribute
@@ -339,15 +349,18 @@ static char kInstalledConstraintsKey;
                                          constant:self.layoutConstant];
     
     layoutConstraint.priority = self.layoutPriority;
+    //mas_key与此约束相关联的关键
     layoutConstraint.mas_key = self.mas_key;
     
     if (self.secondViewAttribute.view) {
+        //找到共同父类
         MAS_VIEW *closestCommonSuperview = [self.firstViewAttribute.view mas_closestCommonSuperview:self.secondViewAttribute.view];
         NSAssert(closestCommonSuperview,
                  @"couldn't find a common superview for %@ and %@",
                  self.firstViewAttribute.view, self.secondViewAttribute.view);
         self.installedView = closestCommonSuperview;
     } else if (self.firstViewAttribute.isSizeAttribute) {
+        //width,height
         self.installedView = self.firstViewAttribute.view;
     } else {
         self.installedView = self.firstViewAttribute.view.superview;
@@ -364,6 +377,7 @@ static char kInstalledConstraintsKey;
         self.layoutConstraint = existingConstraint;
     } else {
         [self.installedView addConstraint:layoutConstraint];
+        //layoutConstraint保存到mas_installedConstraints数组中
         self.layoutConstraint = layoutConstraint;
         [firstLayoutItem.mas_installedConstraints addObject:self];
     }
@@ -388,7 +402,7 @@ static char kInstalledConstraintsKey;
     }
     return nil;
 }
-
+//移除
 - (void)uninstall {
     if ([self supportsActiveProperty]) {
         self.layoutConstraint.active = NO;

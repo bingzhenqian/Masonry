@@ -16,6 +16,7 @@
 @interface MASConstraintMaker () <MASConstraintDelegate>
 
 @property (nonatomic, weak) MAS_VIEW *view;
+//保存创建的MASViewConstraint对象
 @property (nonatomic, strong) NSMutableArray *constraints;
 
 @end
@@ -25,20 +26,25 @@
 - (id)initWithView:(MAS_VIEW *)view {
     self = [super init];
     if (!self) return nil;
-    
+    //弱引用
     self.view = view;
+    //可变数组，存放约束
     self.constraints = NSMutableArray.new;
     
     return self;
 }
 
 - (NSArray *)install {
+    //移除并添加
     if (self.removeExisting) {
+        //获取当前view的约束
         NSArray *installedConstraints = [MASViewConstraint installedConstraintsForView:self.view];
+        //移除
         for (MASConstraint *constraint in installedConstraints) {
             [constraint uninstall];
         }
     }
+    //添加
     NSArray *constraints = self.constraints.copy;
     for (MASConstraint *constraint in constraints) {
         constraint.updateExisting = self.updateExisting;
@@ -59,6 +65,7 @@
 - (MASConstraint *)constraint:(MASConstraint *)constraint addConstraintWithLayoutAttribute:(NSLayoutAttribute)layoutAttribute {
     MASViewAttribute *viewAttribute = [[MASViewAttribute alloc] initWithView:self.view layoutAttribute:layoutAttribute];
     MASViewConstraint *newConstraint = [[MASViewConstraint alloc] initWithFirstViewAttribute:viewAttribute];
+    //猜测是以前有约束，需要替换
     if ([constraint isKindOfClass:MASViewConstraint.class]) {
         //replace with composite constraint
         NSArray *children = @[constraint, newConstraint];
@@ -67,10 +74,18 @@
         [self constraint:constraint shouldBeReplacedWithConstraint:compositeConstraint];
         return compositeConstraint;
     }
+    //constraint不存在，把新建的MASViewConstraint约束对象添加到maker的constraints数组里，
     if (!constraint) {
+        /*回调
+         *当约束需要被另一个约束替换时通知委托。
+        - (void)constraint:(MASConstraint *)constraint shouldBeReplacedWithConstraint:(MASConstraint *)replacementConstraint;
+        
+        - (MASConstraint *)constraint:(MASConstraint *)constraint addConstraintWithLayoutAttribute:(NSLayoutAttribute)layoutAttribute;
+         */
         newConstraint.delegate = self;
         [self.constraints addObject:newConstraint];
     }
+    //返回约束对象
     return newConstraint;
 }
 

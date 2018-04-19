@@ -91,6 +91,17 @@ static NSString * const kMASCellReuseIdentifier = @"kMASCellReuseIdentifier";
 
     self.view.backgroundColor = [UIColor whiteColor];
     [self.tableView registerClass:UITableViewCell.class forCellReuseIdentifier:kMASCellReuseIdentifier];
+    
+    NSLayoutConstraint *con = [NSLayoutConstraint constraintWithItem:self.view
+                                                           attribute:(NSLayoutAttributeTop)
+                                                           relatedBy:(NSLayoutRelationEqual)
+                                                              toItem:self.tableView
+                                                           attribute:NSLayoutAttributeTop
+                                                          multiplier:1.0
+                                                            constant:10];
+    [self.view addConstraint:con];
+    
+
 }
 
 #pragma mark - UITableViewDataSource

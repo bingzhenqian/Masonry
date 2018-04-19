@@ -4,7 +4,8 @@
 //
 //  Created by Jonas Budelmann on 20/07/13.
 //  Copyright (c) 2013 cloudling. All rights reserved.
-//
+//参考https://blog.csdn.net/dp948080952/article/details/72853136
+// https://www.cnblogs.com/ludashi/archive/2016/07/11/5591572.html
 
 #import <Foundation/Foundation.h>
 
