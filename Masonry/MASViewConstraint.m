@@ -351,7 +351,7 @@ static char kInstalledConstraintsKey;
     layoutConstraint.priority = self.layoutPriority;
     //mas_key与此约束相关联的关键
     layoutConstraint.mas_key = self.mas_key;
-    
+    //寻找约束添加的view
     if (self.secondViewAttribute.view) {
         //找到共同父类
         MAS_VIEW *closestCommonSuperview = [self.firstViewAttribute.view mas_closestCommonSuperview:self.secondViewAttribute.view];
@@ -373,12 +373,14 @@ static char kInstalledConstraintsKey;
     }
     if (existingConstraint) {
         // just update the constant
+        //更新约束
         existingConstraint.constant = layoutConstraint.constant;
         self.layoutConstraint = existingConstraint;
     } else {
         [self.installedView addConstraint:layoutConstraint];
         //layoutConstraint保存到mas_installedConstraints数组中
         self.layoutConstraint = layoutConstraint;
+        //添加约束
         [firstLayoutItem.mas_installedConstraints addObject:self];
     }
 }
